@@ -11,7 +11,6 @@ export const createCalendarEvent = async (appointment: any) => {
   `);
 
   return {
-    calendarEventId: `mock_event_${Math.random().toString(36).substr(2, 9)}`,
-    meetingLink: `https://meet.google.com/abc-defg-hij`
+    calendarEventId: `mock_event_${Math.random().toString(36).substr(2, 9)}`
   };
 };

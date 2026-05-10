@@ -1,6 +1,5 @@
 import mongoose from 'mongoose';
 import dotenv from 'dotenv';
-import bcrypt from 'bcrypt';
 import User from './models/User';
 
 dotenv.config();
@@ -19,13 +18,11 @@ const seedAdmin = async () => {
       await adminExists.save();
       console.log('Admin email updated successfully.');
     } else {
-      const salt = await bcrypt.genSalt(10);
-      const hashedPassword = await bcrypt.hash('admin123', salt);
-
+      // Password is auto-hashed via the User model pre-save hook
       await User.create({
         name: 'System Admin',
         email: adminEmail,
-        password: hashedPassword,
+        password: 'admin123',
         role: 'admin',
         phone: '1234567890'
       });

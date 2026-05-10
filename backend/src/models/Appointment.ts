@@ -31,8 +31,10 @@ const AppointmentSchema: Schema = new Schema(
   { timestamps: true }
 );
 
-// Prevent double booking using a unique compound index on doctorId, date, and startTime
-// We only consider active appointments (not cancelled)
+// ---------------------------------------------------------------------------
+// Unique compound index: Prevents double-booking the same doctor+date+slot.
+// The partialFilterExpression ensures cancelled slots can be re-booked.
+// ---------------------------------------------------------------------------
 AppointmentSchema.index(
   { doctorId: 1, date: 1, startTime: 1 }, 
   { 
