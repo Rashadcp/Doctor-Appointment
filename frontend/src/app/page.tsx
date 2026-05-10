@@ -30,7 +30,7 @@ const TOP_SPECIALTIES = [
 
 async function getSpecializationStats() {
   try {
-    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api'}/doctors/stats/specializations`, {
+    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5001/api'}/doctors/stats/specializations`, {
       next: { revalidate: 3600 }
     });
     if (!res.ok) return [];
