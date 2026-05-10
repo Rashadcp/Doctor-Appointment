@@ -64,14 +64,11 @@ export const bookAppointment = async (payload: BookingPayload): Promise<IAppoint
       startTime,
       endTime,
       reason: reason || 'General Consultation',
-      status: 'confirmed',
+      status: 'pending',
     });
 
     // Post-booking integrations (non-blocking)
     await sendBookingConfirmation(newAppointment);
-    const calendarData = await createCalendarEvent(newAppointment);
-
-
     await newAppointment.save();
 
     return newAppointment;
@@ -173,6 +170,10 @@ export const updateAppointmentStatus = async (
 
   if (!appointment) {
     throw { status: 404, message: 'Appointment not found' };
+  }
+
+  if (status === 'confirmed') {
+    await createCalendarEvent(appointment);
   }
 
   return appointment;

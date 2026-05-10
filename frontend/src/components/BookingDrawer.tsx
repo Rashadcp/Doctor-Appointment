@@ -2,13 +2,10 @@
 
 import React, { useState, useEffect, useCallback } from "react";
 import { 
-  Calendar, 
   Clock, 
   AlertCircle, 
   Loader2, 
-  ArrowRight,
-  Shield,
-  CheckCircle2
+  ArrowRight
 } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { SideDrawer } from "@/components/ui/SideDrawer";
@@ -28,16 +25,41 @@ interface BookingDrawerProps {
   };
 }
 
+interface TimeSlot {
+  startTime: string;
+  endTime: string;
+}
+
+interface SlotUpdate {
+  doctorId?: string;
+  date?: string;
+}
+
+interface ApiErrorResponse {
+  response?: {
+    data?: {
+      message?: string;
+    };
+  };
+}
+
+const getErrorMessage = (error: unknown) => {
+  if (typeof error === "object" && error !== null && "response" in error) {
+    return (error as ApiErrorResponse).response?.data?.message;
+  }
+
+  return undefined;
+};
+
 export const BookingDrawer = ({ isOpen, onClose, doctor }: BookingDrawerProps) => {
   const [selectedDate, setSelectedDate] = useState(dayjs().format('YYYY-MM-DD'));
-  const [availableSlots, setAvailableSlots] = useState<any[]>([]);
-  const [selectedSlot, setSelectedSlot] = useState<any>(null);
+  const [availableSlots, setAvailableSlots] = useState<TimeSlot[]>([]);
+  const [selectedSlot, setSelectedSlot] = useState<TimeSlot | null>(null);
   const [reason, setReason] = useState("");
   const [isBooking, setIsBooking] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-  const [bookingData, setBookingData] = useState<any>(null);
 
   const fetchSlots = useCallback(async () => {
     if (!doctor.id) return;
@@ -47,8 +69,8 @@ export const BookingDrawer = ({ isOpen, onClose, doctor }: BookingDrawerProps) =
         params: { date: selectedDate }
       });
       setAvailableSlots(response.data);
-    } catch (err) {
-      console.error("Failed to fetch slots");
+    } catch (error) {
+      console.error("Failed to fetch slots", error);
     } finally {
       setLoading(false);
     }
@@ -68,7 +90,7 @@ export const BookingDrawer = ({ isOpen, onClose, doctor }: BookingDrawerProps) =
     if (!isOpen) return;
 
     // Real-time synchronization
-    const handleSlotUpdate = (data: any) => {
+    const handleSlotUpdate = (data: SlotUpdate) => {
       if (data.doctorId === doctor.id && data.date === selectedDate) {
         fetchSlots();
       }
@@ -97,18 +119,17 @@ export const BookingDrawer = ({ isOpen, onClose, doctor }: BookingDrawerProps) =
     setError("");
     
     try {
-      const response = await api.post("/appointments", {
+      await api.post("/appointments", {
         doctorId: doctor.id,
         date: selectedDate,
         startTime: selectedSlot.startTime,
         endTime: selectedSlot.endTime,
         reason: reason
       });
-      setBookingData(response.data);
       setIsSuccess(true);
-      toast.success("APPOINTMENT_RESERVED");
-    } catch (err: any) {
-      setError(err.response?.data?.message || "Booking failed. Slot may have been taken.");
+      toast.success("REQUEST_SUBMITTED");
+    } catch (error) {
+      setError(getErrorMessage(error) || "Booking failed. Slot may have been taken.");
       fetchSlots();
     } finally {
       setIsBooking(false);
@@ -125,16 +146,16 @@ export const BookingDrawer = ({ isOpen, onClose, doctor }: BookingDrawerProps) =
       <SideDrawer 
         isOpen={isOpen} 
         onClose={onClose} 
-        title="Confirmation"
-        subtitle="Your appointment has been successfully scheduled."
+        title="Request submitted"
+        subtitle="Your appointment is waiting for admin confirmation."
       >
         <div className="text-center py-12">
-          <div className="w-20 h-20 bg-emerald-50 text-emerald-500 flex items-center justify-center mx-auto mb-8 border border-emerald-100">
-            <CheckCircle2 className="w-10 h-10" />
+          <div className="w-20 h-20 bg-amber-50 text-amber-500 flex items-center justify-center mx-auto mb-8 border border-amber-100">
+            <Clock className="w-10 h-10" />
           </div>
-          <h2 className="text-2xl font-bold uppercase tracking-tighter mb-4 text-slate-900">Confirmed</h2>
+          <h2 className="text-2xl font-bold uppercase tracking-tighter mb-4 text-slate-900">Pending Review</h2>
           <p className="text-slate-500 text-xs font-medium mb-8 leading-relaxed">
-            Your consultation with {doctor.name} has been scheduled for {dayjs(selectedDate).format('MMMM D, YYYY')} at {selectedSlot.startTime}. 
+            Your consultation request with {doctor.name} is pending for {dayjs(selectedDate).format('MMMM D, YYYY')} at {selectedSlot.startTime}. You will be notified when admin confirms it.
           </p>
 
 

@@ -113,12 +113,32 @@ export const updateAppointmentStatus = async (req: Request, res: Response): Prom
   try {
     const { status } = req.body;
     const appointment: any = await appointmentService.updateAppointmentStatus(req.params.id, status);
-    emitEvent('appointment_status_updated', {
+    const doctorId = appointment.doctorId?._id?.toString() || appointment.doctorId?.toString();
+    const payload = {
       id: appointment._id,
       status: appointment.status,
-      patientId: appointment.patientId,
+      patientId: appointment.patientId?.toString(),
+      doctorId,
       doctorName: appointment.doctorId?.name,
-    });
+      date: appointment.date,
+      startTime: appointment.startTime,
+    };
+
+    emitEvent('appointment_status_updated', payload);
+    emitEvent('appointment_updated', payload);
+
+    if (status === 'confirmed') {
+      emitEvent('appointment_confirmed', payload);
+    }
+
+    if (status === 'cancelled') {
+      emitEvent('slot_cancelled', {
+        doctorId,
+        date: appointment.date,
+        startTime: appointment.startTime,
+      });
+    }
+
     res.json(appointment);
   } catch (error: any) {
     res.status(error.status || 500).json({ message: error.message || 'Server error' });

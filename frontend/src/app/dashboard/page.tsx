@@ -69,7 +69,6 @@ function DashboardContent() {
     socket.on('appointment_updated', (data: any) => {
       if (data.patientId === user?._id) {
         fetchAppointments();
-        toast.info(`Your appointment status has been updated to ${data.status}`);
       }
     });
 

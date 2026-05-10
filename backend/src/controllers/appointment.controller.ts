@@ -17,12 +17,23 @@ export const bookAppointment = async (req: any, res: Response): Promise<void> =>
       endTime,
       reason,
     });
+    const populatedAppointment = await savedAppointment.populate('doctorId', 'name specialization');
+    const populatedDoctor = populatedAppointment.doctorId as any;
 
     // Real-time notification via Socket
     const io = getIO();
     io.emit('slot_booked', { doctorId, date, startTime });
+    io.emit('appointment_booked', {
+      appointmentId: savedAppointment._id,
+      patientId: req.user.id,
+      doctorId,
+      doctorName: populatedDoctor?.name,
+      date,
+      startTime,
+      endTime,
+    });
 
-    res.status(201).json(savedAppointment);
+    res.status(201).json(populatedAppointment);
   } catch (error: any) {
     res.status(error.status || 500).json({ message: error.message || 'System error during clinical scheduling' });
   }

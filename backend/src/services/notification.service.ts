@@ -5,16 +5,16 @@ export const sendBookingConfirmation = async (appointment: any) => {
   console.log(`
     [NOTIFICATION SERVICE]
     To: Patient
-    Subject: Appointment Confirmed - ${appointment.date}
-    Message: Your appointment with the doctor has been confirmed for ${appointment.date} at ${appointment.startTime}.
+    Subject: Appointment Request Received - ${appointment.date}
+    Message: Your appointment request for ${appointment.date} at ${appointment.startTime} is pending admin confirmation.
     Reason: ${appointment.reason}
   `);
 
   console.log(`
     [NOTIFICATION SERVICE]
     To: Doctor
-    Subject: New Appointment Scheduled
-    Message: You have a new appointment on ${appointment.date} at ${appointment.startTime}.
+    Subject: New Appointment Request
+    Message: A patient requested an appointment on ${appointment.date} at ${appointment.startTime}.
     Patient ID: ${appointment.patientId}
   `);
 };

@@ -23,7 +23,7 @@ const AppointmentSchema: Schema = new Schema(
     status: {
       type: String,
       enum: ['pending', 'confirmed', 'completed', 'cancelled'],
-      default: 'confirmed',
+      default: 'pending',
     },
     reason: { type: String },
     meetingLink: { type: String },

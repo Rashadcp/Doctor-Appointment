@@ -4,7 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Stethoscope, Menu, X, User, LogOut, Bell } from "lucide-react";
 import { Button } from "@/components/ui/Button";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useAuth } from "@/context/AuthContext";
 
 interface NavbarNotification {
@@ -13,12 +13,28 @@ interface NavbarNotification {
   description: string;
 }
 
+const getNotificationStorageKey = (userId: string) => `medmatch:notifications:${userId}`;
+
+const readStoredNotifications = (userId: string): NavbarNotification[] => {
+  try {
+    const stored = localStorage.getItem(getNotificationStorageKey(userId));
+    return stored ? JSON.parse(stored) : [];
+  } catch {
+    return [];
+  }
+};
+
+const writeStoredNotifications = (userId: string, items: NavbarNotification[]) => {
+  localStorage.setItem(getNotificationStorageKey(userId), JSON.stringify(items.slice(0, 5)));
+};
+
 export const Navbar = () => {
   const pathname = usePathname();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
   const [unreadNotifications, setUnreadNotifications] = useState(0);
   const [notifications, setNotifications] = useState<NavbarNotification[]>([]);
+  const notificationsRef = useRef<HTMLDivElement>(null);
   const { user, logout } = useAuth();
 
   useEffect(() => {
@@ -29,6 +45,9 @@ export const Navbar = () => {
       return;
     }
 
+    const storedNotifications = readStoredNotifications(user._id);
+    setNotifications(storedNotifications);
+
     const handleNotification = (event: Event) => {
       const detail = (event as CustomEvent<Partial<NavbarNotification>>).detail;
       const notification = {
@@ -38,7 +57,11 @@ export const Navbar = () => {
       };
 
       setUnreadNotifications((count) => count + 1);
-      setNotifications((items) => [notification, ...items].slice(0, 5));
+      setNotifications((items) => {
+        const nextItems = [notification, ...items].slice(0, 5);
+        writeStoredNotifications(user._id, nextItems);
+        return nextItems;
+      });
     };
 
     window.addEventListener("medmatch:notification", handleNotification);
@@ -51,6 +74,24 @@ export const Navbar = () => {
     setIsNotificationsOpen(false);
     setIsMobileMenuOpen(false);
   }, [pathname]);
+
+  useEffect(() => {
+    if (!isNotificationsOpen) return;
+
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        notificationsRef.current &&
+        !notificationsRef.current.contains(event.target as Node)
+      ) {
+        setIsNotificationsOpen(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [isNotificationsOpen]);
 
   if (
     !pathname ||
@@ -87,7 +128,7 @@ export const Navbar = () => {
         {user ? (
           <div className="flex items-center gap-4">
             <span className="hidden lg:block text-[10px] font-bold uppercase tracking-widest text-slate-400">{user.name}</span>
-            <div className="relative">
+            <div ref={notificationsRef} className="relative">
               <Button
                 variant="ghost"
                 type="button"
@@ -111,9 +152,24 @@ export const Navbar = () => {
                 <div className="absolute right-0 top-12 w-80 max-w-[calc(100vw-2rem)] bg-white border border-slate-200 shadow-[8px_8px_0px_0px_rgba(11,11,11,0.08)] animate-slideDown">
                   <div className="flex items-center justify-between border-b border-slate-100 px-4 py-3">
                     <h3 className="text-[10px] font-bold uppercase tracking-[0.2em] text-ink-black">Notifications</h3>
-                    <span className="text-[9px] font-bold uppercase tracking-widest text-slate-400">
-                      {notifications.length ? `${notifications.length} recent` : "Clear"}
-                    </span>
+                    {notifications.length > 0 && (
+                      <div className="flex items-center gap-3">
+                        <span className="text-[9px] font-bold uppercase tracking-widest text-slate-400">
+                          {notifications.length} recent
+                        </span>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setNotifications([]);
+                            setUnreadNotifications(0);
+                            writeStoredNotifications(user._id, []);
+                          }}
+                          className="text-[9px] font-bold uppercase tracking-widest text-deep-blue hover:text-ink-black"
+                        >
+                          Clear
+                        </button>
+                      </div>
+                    )}
                   </div>
 
                   <div className="max-h-72 overflow-y-auto">
