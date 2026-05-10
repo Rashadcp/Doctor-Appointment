@@ -27,7 +27,6 @@ export const createDoctorSchema = Joi.object({
   bio: Joi.string().optional().allow(''),
   image: Joi.string().optional().allow(''),
   location: Joi.string().optional().allow(''),
-  rating: Joi.number().min(0).max(5).optional(),
   education: Joi.string().optional().allow(''),
   languages: Joi.array().items(Joi.string()).optional(),
   availability: Joi.object({

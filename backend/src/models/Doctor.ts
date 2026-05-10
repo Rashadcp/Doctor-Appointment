@@ -8,7 +8,7 @@ export interface IDoctor extends Document {
   bio: string;
   image: string;
   location: string;
-  rating: number;
+
   education: string;
   languages: string[];
   availability: {
@@ -31,7 +31,7 @@ const DoctorSchema: Schema = new Schema(
     bio: { type: String, default: '' },
     image: { type: String, default: '' },
     location: { type: String, default: 'Central Clinic, NY' },
-    rating: { type: Number, default: 4.9 },
+
     education: { type: String, default: 'Harvard Medical School' },
     languages: [{ type: String, default: ['English'] }],
     availability: {

@@ -13,6 +13,7 @@ import doctorRoutes from './routes/doctor.routes';
 import appointmentRoutes from './routes/appointment.routes';
 import adminRoutes from './routes/admin.routes';
 import specializationRoutes from './routes/specialization.routes';
+import { errorHandler } from './middleware/errorHandler';
 
 dotenv.config();
 
@@ -45,6 +46,9 @@ app.use('/api/doctors', doctorRoutes);
 app.use('/api/appointments', appointmentRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/specializations', specializationRoutes);
+
+// Global Error Handler
+app.use(errorHandler);
 
 // Database connection
 const PORT = process.env.PORT || 5000;

@@ -5,7 +5,6 @@ import Image from "next/image";
 import { 
   Shield, 
   Calendar, 
-  Star, 
   MapPin, 
   Award, 
   Users, 
@@ -112,9 +111,6 @@ export default function DoctorProfilePage({ params }: { params: Promise<{ id: st
                 <div className="flex items-center gap-4 mb-4">
                   <div className="px-3 py-1 bg-medical-blue/10 text-medical-blue text-[9px] font-black uppercase tracking-[0.2em] border border-medical-blue/20">
                     {doctor.specialization}
-                  </div>
-                  <div className="flex items-center gap-1 text-[11px] font-bold uppercase tracking-wider text-slate-400">
-                    <Star className="w-3 h-3 fill-yellow-400 text-yellow-400" /> 4.9 <span className="text-slate-300 mx-1">|</span> 124 Reviews
                   </div>
                 </div>
 

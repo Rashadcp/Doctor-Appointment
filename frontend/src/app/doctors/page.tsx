@@ -147,7 +147,6 @@ export default function DoctorDiscoveryPage() {
                 location={doctor.location}
                 availability="Active"
                 imageUrl={doctor.image}
-                rating={4.9}
               />
             ))}
           </div>

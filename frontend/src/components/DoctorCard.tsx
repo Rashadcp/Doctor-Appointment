@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import Image from "next/image";
-import { Star, MapPin, ArrowUpRight, Stethoscope } from "lucide-react";
+import { MapPin, ArrowUpRight, Stethoscope } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/Card";
 import { BookingDrawer } from "./BookingDrawer";
 import { Button } from "@/components/ui/Button";
@@ -14,7 +14,6 @@ interface DoctorCardProps {
   id: string;
   name: string;
   specialty: string;
-  rating: number;
   experience: number;
   location: string;
   availability: string;
@@ -25,7 +24,6 @@ export const DoctorCard = ({
   id, 
   name, 
   specialty, 
-  rating, 
   experience, 
   location, 
   availability, 
@@ -72,16 +70,10 @@ export const DoctorCard = ({
             </Link>
           </div>
 
-          <div className="grid grid-cols-2 gap-4 mb-6">
+          <div className="grid grid-cols-1 gap-4 mb-6">
             <div className="space-y-1">
               <div className="text-[10px] font-bold uppercase tracking-widest text-slate-400">Exp.</div>
               <div className="text-sm font-bold">{experience} Years</div>
-            </div>
-            <div className="space-y-1">
-              <div className="text-[10px] font-bold uppercase tracking-widest text-slate-400">Rating</div>
-              <div className="text-sm font-bold flex items-center gap-1">
-                {rating} <Star className="w-3 h-3 fill-yellow-400 text-yellow-400" />
-              </div>
             </div>
           </div>
 
