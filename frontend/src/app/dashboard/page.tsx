@@ -3,7 +3,7 @@
 import React, { useState, useEffect, lazy, Suspense } from "react";
 import {
   Calendar, Clock, Settings, LogOut, Stethoscope,
-  LayoutGrid, User, Loader2, XCircle
+  LayoutGrid, User, Loader2, XCircle, Menu
 } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Card, CardContent } from "@/components/ui/Card";
@@ -29,6 +29,7 @@ function DashboardContent() {
   const [appointments, setAppointments] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [selectedAppointment, setSelectedAppointment] = useState<any>(null);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   const [stats, setStats] = useState<any>({ total: 0, completed: 0, nextSession: null });
   const fetchAppointments = async () => {
@@ -154,10 +155,18 @@ function DashboardContent() {
 
       {/* Main Content */}
       <main className="flex-grow">
-        <header className="bg-white border-b border-slate-200 h-24 px-8 lg:px-12 flex items-center justify-between sticky top-0 z-10">
-          <div className="flex flex-col">
-            <h1 className="text-2xl font-bold uppercase tracking-tighter leading-none">Your Visits</h1>
-            <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-400 mt-2">Good to see you, {user?.name}</span>
+        <header className="bg-white border-b border-slate-200 h-24 px-6 lg:px-12 flex items-center justify-between sticky top-0 z-40">
+          <div className="flex items-center gap-4">
+            <button 
+              onClick={() => setIsMobileMenuOpen(true)}
+              className="lg:hidden p-2 -ml-2 text-slate-500 hover:text-slate-900 transition-colors"
+            >
+              <Menu size={24} />
+            </button>
+            <div className="flex flex-col">
+              <h1 className="text-xl lg:text-2xl font-bold uppercase tracking-tighter leading-none">Your Visits</h1>
+              <span className="hidden sm:block text-[10px] font-bold uppercase tracking-[0.2em] text-slate-400 mt-2">Good to see you, {user?.name}</span>
+            </div>
           </div>
           <div className="flex items-center gap-6">
             <div className="flex items-center gap-4">
@@ -167,6 +176,56 @@ function DashboardContent() {
             </div>
           </div>
         </header>
+
+        {/* Mobile Sidebar Overlay */}
+        {isMobileMenuOpen && (
+          <div className="fixed inset-0 z-50 lg:hidden">
+            <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm" onClick={() => setIsMobileMenuOpen(false)} />
+            <aside className="fixed left-0 top-0 bottom-0 w-72 bg-white flex flex-col shadow-2xl animate-slideRight">
+              <div className="p-8 border-b border-slate-200 flex items-center justify-between">
+                <Link href="/" className="flex items-center gap-3">
+                  <div className="w-8 h-8 bg-medical-blue flex items-center justify-center">
+                    <Stethoscope className="text-white w-5 h-5" />
+                  </div>
+                  <span className="font-bold uppercase tracking-tighter text-xl">MedMatch</span>
+                </Link>
+                <button onClick={() => setIsMobileMenuOpen(false)} className="text-slate-400 hover:text-slate-900">
+                  <XCircle size={20} />
+                </button>
+              </div>
+
+              <nav className="p-4 flex-grow space-y-2">
+                {[
+                  { name: "My Visits", icon: LayoutGrid, href: "/dashboard", active: ["Upcoming", "Completed", "Cancelled"].includes(activeTab) },
+                  { name: "Profile", icon: User, href: "/dashboard?tab=Profile", active: activeTab === "Profile" },
+                ].map((item) => (
+                  <Link key={item.name} href={item.href || "#"} onClick={() => setIsMobileMenuOpen(false)}>
+                    <button
+                      className={`w-full flex items-center gap-4 px-4 py-3 text-xs font-bold uppercase tracking-widest transition-colors ${
+                        item.active ? "bg-slate-900 text-white" : "text-slate-500 hover:bg-slate-100"
+                      }`}
+                    >
+                      <item.icon className="w-4 h-4" />
+                      {item.name}
+                    </button>
+                  </Link>
+                ))}
+              </nav>
+
+              <div className="p-8 border-t border-slate-200">
+                <button 
+                  onClick={() => {
+                    logout();
+                    toast.success("Successfully logged out.");
+                  }}
+                  className="flex items-center gap-4 text-xs font-bold uppercase tracking-widest text-red-500 hover:text-red-700 transition-colors"
+                >
+                  <LogOut className="w-4 h-4" /> Sign Out
+                </button>
+              </div>
+            </aside>
+          </div>
+        )}
 
         <div className="p-8 lg:p-12 max-w-6xl mx-auto">
           {/* Stats Bar */}
@@ -219,7 +278,8 @@ function DashboardContent() {
                 </div>
               </div>
 
-              <div className="overflow-x-auto">
+              {/* Desktop Table View */}
+              <div className="hidden lg:block overflow-x-auto">
                 <table className="w-full text-left border-collapse">
                   <thead>
                     <tr className="bg-slate-50 border-b border-slate-200 text-[10px] font-bold uppercase tracking-widest text-slate-400">
@@ -283,13 +343,66 @@ function DashboardContent() {
                             <div className="w-12 h-12 bg-slate-50 flex items-center justify-center mb-4">
                               <Calendar className="w-6 h-6 text-slate-300" />
                             </div>
-                            <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400">No appointments found in this category</p>
+                            <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400">No appointments found</p>
                           </div>
                         </td>
                       </tr>
                     )}
                   </tbody>
                 </table>
+              </div>
+
+              {/* Mobile Card View */}
+              <div className="lg:hidden divide-y divide-slate-100">
+                {isLoading ? (
+                  <div className="p-12 text-center">
+                    <Loader2 size={24} className="animate-spin mx-auto text-slate-200" />
+                  </div>
+                ) : filteredAppointments.length > 0 ? (
+                  filteredAppointments.map((apt) => (
+                    <div key={apt._id} className="p-6 space-y-4 hover:bg-slate-50/50 transition-colors">
+                      <div className="flex justify-between items-start">
+                        <div>
+                          <div className="text-xs font-bold uppercase tracking-tight">{apt.doctorId?.name}</div>
+                          <div className="text-[9px] text-slate-400 uppercase tracking-widest mt-1">{apt.doctorId?.specialization}</div>
+                        </div>
+                        <div className={`px-2 py-0.5 text-[8px] font-bold uppercase tracking-widest border ${
+                          apt.status === 'confirmed' ? "bg-medical-blue/5 text-medical-blue border-medical-blue/10" :
+                          apt.status === 'completed' ? "bg-emerald-50 text-emerald-600 border-emerald-100" :
+                          "bg-red-50 text-red-600 border-red-100"
+                        }`}>
+                          {apt.status}
+                        </div>
+                      </div>
+                      
+                      <div className="flex justify-between items-center pt-2 border-t border-slate-50">
+                        <div className="flex items-center gap-3">
+                          <div className="text-[10px] font-bold">{dayjs(apt.date).format('MMM DD, YYYY')}</div>
+                          <div className="text-[10px] text-slate-400 font-medium">{apt.startTime}</div>
+                        </div>
+                        <div className="flex gap-2">
+                          {(apt.status === 'confirmed' || apt.status === 'pending') && (
+                            <button 
+                              onClick={() => handleCancel(apt._id)}
+                              className="text-[9px] font-bold uppercase text-red-500 hover:underline"
+                            >Cancel</button>
+                          )}
+                          <button 
+                            onClick={() => setSelectedAppointment(apt)}
+                            className="text-[9px] font-bold uppercase text-medical-blue hover:underline"
+                          >Details</button>
+                        </div>
+                      </div>
+                    </div>
+                  ))
+                ) : (
+                  <div className="py-20 text-center px-6">
+                    <div className="w-10 h-10 bg-slate-50 flex items-center justify-center mx-auto mb-4 border border-slate-100">
+                      <Calendar className="w-4 h-4 text-slate-200" />
+                    </div>
+                    <p className="text-[9px] font-bold uppercase tracking-widest text-slate-400">No session history found</p>
+                  </div>
+                )}
               </div>
             </div>
           )}
