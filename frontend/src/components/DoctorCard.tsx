@@ -54,7 +54,6 @@ export const DoctorCard = ({
               fill
               sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
               className="object-cover transition-all duration-500 scale-105 group-hover:scale-100"
-              loading="lazy"
             />
             <div className="absolute top-4 right-4 bg-white px-3 py-1 text-[10px] font-bold uppercase tracking-widest border border-slate-200">
               Available {availability}

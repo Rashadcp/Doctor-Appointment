@@ -159,7 +159,7 @@ export const BookingDrawer = ({ isOpen, onClose, doctor }: BookingDrawerProps) =
           </div>
           <h2 className="text-2xl font-bold uppercase tracking-tighter mb-4 text-slate-900">Pending Review</h2>
           <p className="text-slate-500 text-xs font-medium mb-8 leading-relaxed">
-            Your consultation request with {doctor.name} is pending for {dayjs(selectedDate).format('MMMM D, YYYY')} at {selectedSlot.startTime}. You will be notified when admin confirms it.
+            Your consultation request with {doctor.name} is pending for {dayjs(selectedDate).format('MMMM D, YYYY')} at {selectedSlot?.startTime}. You will be notified when admin confirms it.
           </p>
 
 
