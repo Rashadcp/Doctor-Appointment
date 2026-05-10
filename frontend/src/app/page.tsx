@@ -45,7 +45,7 @@ export default async function Home() {
   const stats = await getSpecializationStats();
 
   // Map icons to the fetched stats
-  const specialtyDisplay = stats.map((s: any) => {
+  const specialtyDisplay = stats.map((s: { name: string; count: number }) => {
     const top = TOP_SPECIALTIES.find(t => t.name.toLowerCase() === s.name.toLowerCase());
     return {
       ...s,
@@ -121,7 +121,7 @@ export default async function Home() {
           </div>
 
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-            {specialtyDisplay.map((spec: any, i: number) => (
+            {specialtyDisplay.map((spec: { label: string; count: number; icon: React.ElementType }) => (
               <Link key={spec.label} href={`/doctors?specialization=${spec.label}`}>
                 <div className="bg-white border border-slate-100 p-8 flex flex-col items-center text-center group cursor-pointer hover:border-medical-blue transition-colors h-full">
                   <div className="w-16 h-16 bg-slate-50 flex items-center justify-center mb-6 group-hover:bg-medical-blue/10 transition-colors">
@@ -258,7 +258,7 @@ export default async function Home() {
                 <span className="text-xl font-bold tracking-tighter uppercase">MedMatch</span>
               </div>
               <p className="text-sm text-slate-500 font-medium max-w-sm leading-relaxed mb-8">
-                The world's first precision-engineered medical consultation platform. 
+                The world&apos;s first precision-engineered medical consultation platform. 
                 Connecting patients with elite clinical practitioners through high-performance scheduling protocols.
               </p>
               <div className="flex gap-4">

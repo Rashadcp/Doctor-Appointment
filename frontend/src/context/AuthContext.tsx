@@ -16,7 +16,7 @@ interface AuthContextType {
   loading: boolean;
   login: (email: string, password: string, redirectTo?: string) => Promise<void>;
   logout: () => Promise<void>;
-  register: (userData: any, redirectTo?: string) => Promise<void>;
+  register: (userData: Record<string, unknown>, redirectTo?: string) => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -65,12 +65,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       } else {
         router.push('/doctors');
       }
-    } catch (error: any) {
-      throw error.response?.data?.message || 'Login failed';
+    } catch (error: unknown) {
+      const apiError = error as { response?: { data?: { message?: string } } };
+      throw apiError.response?.data?.message || 'Login failed';
     }
   };
 
-  const register = async (userData: any, redirectTo?: string) => {
+  const register = async (userData: Record<string, unknown>, redirectTo?: string) => {
     try {
       const response = await api.post('/auth/register', userData);
       const { accessToken, ...data } = response.data;
@@ -86,8 +87,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       } else {
         router.push('/doctors');
       }
-    } catch (error: any) {
-      throw error.response?.data?.message || 'Registration failed';
+    } catch (error: unknown) {
+      const apiError = error as { response?: { data?: { message?: string } } };
+      throw apiError.response?.data?.message || 'Registration failed';
     }
   };
 
