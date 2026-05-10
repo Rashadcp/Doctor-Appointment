@@ -12,7 +12,7 @@ import {
   Grid,
   X
 } from "lucide-react";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/context/AuthContext";
 import { toast } from "sonner";
@@ -20,7 +20,7 @@ import { toast } from "sonner";
 const menuItems = [
   { name: "Dashboard", href: "/admin/dashboard", icon: LayoutDashboard },
   { name: "Doctors", href: "/admin/doctors", icon: Users },
-
+  { name: "Schedule", href: "/admin/schedule", icon: Calendar },
   { name: "Appointments", href: "/admin/appointments", icon: ClipboardList },
 ];
 

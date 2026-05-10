@@ -109,6 +109,11 @@ export const getAvailableSlots = async (
     throw { status: 404, message: 'Doctor not found or inactive' };
   }
 
+  const requestedDay = dayjs(date).format('dddd');
+  if (!doctor.availability.days.includes(requestedDay)) {
+    return [];
+  }
+
   // Step 1: Generate all possible slots from doctor schedule
   const slots: TimeSlot[] = [];
   let currentTime = dayjs(`${date} ${doctor.availability.startTime}`);

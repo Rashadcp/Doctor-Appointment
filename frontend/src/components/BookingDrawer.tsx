@@ -10,7 +10,7 @@ import {
 import { Button } from "@/components/ui/Button";
 import { SideDrawer } from "@/components/ui/SideDrawer";
 import api from "@/lib/api";
-import socket from "@/services/socket";
+import { getSocket } from "@/services/socket";
 import dayjs from "dayjs";
 import { toast } from "sonner";
 import Link from "next/link";
@@ -32,6 +32,7 @@ interface TimeSlot {
 
 interface SlotUpdate {
   doctorId?: string;
+  _id?: string;
   date?: string;
 }
 
@@ -91,21 +92,24 @@ export const BookingDrawer = ({ isOpen, onClose, doctor }: BookingDrawerProps) =
 
     // Real-time synchronization
     const handleSlotUpdate = (data: SlotUpdate) => {
-      if (data.doctorId === doctor.id && data.date === selectedDate) {
+      const updatedDoctorId = data.doctorId || data._id;
+      const isSameDoctor = updatedDoctorId === doctor.id;
+      const isSameDate = !data.date || data.date === selectedDate;
+
+      if (isSameDoctor && isSameDate) {
         fetchSlots();
       }
     };
 
-    if (socket) {
-      socket.on('slot_booked', handleSlotUpdate);
-      socket.on('slot_cancelled', handleSlotUpdate);
-    }
+    const socket = getSocket();
+    socket.on('slot_booked', handleSlotUpdate);
+    socket.on('slot_cancelled', handleSlotUpdate);
+    socket.on('doctor_updated', handleSlotUpdate);
 
     return () => {
-      if (socket) {
-        socket.off('slot_booked', handleSlotUpdate);
-        socket.off('slot_cancelled', handleSlotUpdate);
-      }
+      socket.off('slot_booked', handleSlotUpdate);
+      socket.off('slot_cancelled', handleSlotUpdate);
+      socket.off('doctor_updated', handleSlotUpdate);
     };
   }, [isOpen, fetchSlots, doctor.id, selectedDate]);
 

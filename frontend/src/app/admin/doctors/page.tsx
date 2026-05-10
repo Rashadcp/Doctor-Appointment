@@ -416,7 +416,17 @@ export default function DoctorManagement() {
 
           <div className="space-y-2">
             <label className="text-[10px] font-bold uppercase tracking-widest text-slate-400">Full Name</label>
-            <input name="name" required type="text" defaultValue={editingDoctor?.name} className="input-field w-full" placeholder="DR. JONATHAN DOE" />
+            <input
+              name="name"
+              required
+              type="text"
+              defaultValue={editingDoctor?.name}
+              onInput={(event) => {
+                event.currentTarget.value = event.currentTarget.value.toUpperCase();
+              }}
+              className="input-field w-full uppercase"
+              placeholder="DR. ANANYA MENON"
+            />
           </div>
           
           <div className="grid grid-cols-2 gap-4">

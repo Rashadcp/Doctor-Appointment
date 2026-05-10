@@ -52,7 +52,11 @@ export const updateDoctor = async (req: Request, res: Response): Promise<void> =
   try {
     const doctor = await doctorService.updateDoctor(req.params.id, req.body);
     if (doctor) {
-      emitEvent('doctor_updated', doctor);
+      emitEvent('doctor_updated', {
+        _id: doctor._id,
+        doctorId: doctor._id,
+        availability: doctor.availability,
+      });
       res.json(doctor);
     } else {
       res.status(404).json({ message: 'Doctor not found' });
