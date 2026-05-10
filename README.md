@@ -104,8 +104,8 @@ A premium, full-stack medical appointment booking platform built with the MERN s
 
 ---
 
-## 🎨 Design System
-The application utilizes a custom-built design system featuring:
-- **Swiss-Brutalist Aesthetic**: Sharp borders, heavy typography, and high contrast.
-- **Responsive Layouts**: Fully optimized for mobile/thumb-friendly interactions.
-- **Micro-animations**: Smooth transitions powered by Framer Motion.
+## 🌐 Deployment
+- **Frontend**: Hosted on [Vercel](https://vercel.com/) (Next.js optimized).
+- **Backend**: Hosted on [Render](https://render.com/) (Node.js/Express service).
+- **Database**: [MongoDB Atlas](https://www.mongodb.com/cloud/atlas) (Global clusters).
+- **Storage**: [AWS S3](https://aws.amazon.com/s3/) (Practitioner profile assets).
