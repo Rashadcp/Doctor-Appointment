@@ -112,11 +112,12 @@ export const getDashboardStats = async (req: Request, res: Response): Promise<vo
 export const updateAppointmentStatus = async (req: Request, res: Response): Promise<void> => {
   try {
     const { status } = req.body;
-    const appointment = await appointmentService.updateAppointmentStatus(req.params.id, status);
-    emitEvent('appointment_updated', {
+    const appointment: any = await appointmentService.updateAppointmentStatus(req.params.id, status);
+    emitEvent('appointment_status_updated', {
       id: appointment._id,
       status: appointment.status,
       patientId: appointment.patientId,
+      doctorName: appointment.doctorId?.name,
     });
     res.json(appointment);
   } catch (error: any) {

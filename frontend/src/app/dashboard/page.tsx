@@ -1,33 +1,19 @@
 "use client";
 
-import React, { useState } from "react";
-import { 
-  Calendar, 
-  Clock, 
-  MoreVertical, 
-  Search, 
-  CheckCircle2, 
-  XCircle, 
-  ExternalLink,
-  User,
-  LayoutGrid,
-  Settings,
-  LogOut,
-  Stethoscope,
-  Loader2
+import React, { useState, useEffect, lazy, Suspense } from "react";
+import {
+  Calendar, Clock, Settings, LogOut, Stethoscope,
+  LayoutGrid, User, Loader2, XCircle
 } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Card, CardContent } from "@/components/ui/Card";
 import { Input } from "@/components/ui/Input";
-import { motion, AnimatePresence } from "framer-motion";
 import { useAuth } from "@/context/AuthContext";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-import { useEffect } from "react";
-
 import api from "@/lib/api";
-import socket from "@/services/socket";
+import { getSocket } from "@/services/socket";
 import { toast } from "sonner";
 import dayjs from "dayjs";
 
@@ -78,20 +64,17 @@ function DashboardContent() {
   useEffect(() => {
     fetchAppointments();
 
-    // Listen for status updates from Admin
-    if (socket) {
-      socket.on('appointment_updated', (data) => {
-        if (data.patientId === user?._id) {
-          fetchAppointments();
-          toast.info(`Your appointment status has been updated to ${data.status}`);
-        }
-      });
-    }
+    // Listen for status updates from Admin — lazy socket
+    const socket = getSocket();
+    socket.on('appointment_updated', (data: any) => {
+      if (data.patientId === user?._id) {
+        fetchAppointments();
+        toast.info(`Your appointment status has been updated to ${data.status}`);
+      }
+    });
 
     return () => {
-      if (socket) {
-        socket.off('appointment_updated');
-      }
+      socket.off('appointment_updated');
     };
   }, [user?._id]);
 
@@ -128,7 +111,7 @@ function DashboardContent() {
 
   return (
     <div className="min-h-screen bg-slate-50 flex">
-      {/* ... Sidebar ... */}
+      {/* Sidebar */}
       <aside className="hidden lg:flex w-72 bg-white border-r border-slate-200 flex-col h-screen sticky top-0">
         <div className="p-8 border-b border-slate-200">
           <Link href="/" className="flex items-center gap-3">
@@ -205,7 +188,7 @@ function DashboardContent() {
             </div>
           </div>
 
-          {/* Appointment Log Table */}
+          {/* Content */}
           {activeTab === "Profile" ? (
             <ProfileView user={user} />
           ) : activeTab === "Settings" ? (
@@ -230,7 +213,7 @@ function DashboardContent() {
                     >
                       {tab}
                       {activeTab === tab && (
-                        <motion.div layoutId="activeTab" className="absolute bottom-0 left-0 right-0 h-1 bg-medical-blue" />
+                        <div className="absolute bottom-0 left-0 right-0 h-1 bg-medical-blue transition-all" />
                       )}
                     </button>
                   ))}
@@ -249,75 +232,63 @@ function DashboardContent() {
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-100">
-                    <AnimatePresence mode="popLayout">
-                      {isLoading ? (
-                        <tr>
-                          <td colSpan={5} className="px-8 py-12 text-center">
-                            <Loader2 size={24} className="animate-spin mx-auto text-slate-200" />
+                    {isLoading ? (
+                      <tr>
+                        <td colSpan={5} className="px-8 py-12 text-center">
+                          <Loader2 size={24} className="animate-spin mx-auto text-slate-200" />
+                        </td>
+                      </tr>
+                    ) : filteredAppointments.length > 0 ? (
+                      filteredAppointments.map((apt) => (
+                        <tr key={apt._id} className="hover:bg-slate-50/50 transition-colors group">
+                          <td className="px-8 py-6 font-mono text-[10px] uppercase">{apt._id.slice(-8)}</td>
+                          <td className="px-8 py-6">
+                            <div className="text-sm font-bold uppercase">{apt.doctorId?.name}</div>
+                            <div className="text-[10px] text-slate-400 uppercase tracking-wide">{apt.doctorId?.specialization}</div>
                           </td>
-                        </tr>
-                      ) : filteredAppointments.length > 0 ? (
-                        filteredAppointments.map((apt) => (
-                          <motion.tr 
-                            key={apt._id}
-                            initial={{ opacity: 0 }}
-                            animate={{ opacity: 1 }}
-                            exit={{ opacity: 0 }}
-                            className="hover:bg-slate-50/50 transition-colors group"
-                          >
-                            <td className="px-8 py-6 font-mono text-[10px] uppercase">{apt._id.slice(-8)}</td>
-                            <td className="px-8 py-6">
-                              <div className="text-sm font-bold uppercase">{apt.doctorId?.name}</div>
-                              <div className="text-[10px] text-slate-400 uppercase tracking-wide">{apt.doctorId?.specialization}</div>
-                            </td>
-                            <td className="px-8 py-6">
-                              <div className="text-sm font-bold">{dayjs(apt.date).format('MMM D, YYYY')}</div>
-                              <div className="text-[10px] text-slate-400 font-medium uppercase">{apt.startTime}</div>
-                            </td>
-                            <td className="px-8 py-6">
-                              <div className="flex items-center gap-2">
-                                <div className={`w-1.5 h-1.5 rounded-full ${
-                                  apt.status === "confirmed" ? "bg-medical-blue" :
-                                  apt.status === "completed" ? "bg-emerald-500" : "bg-red-500"
-                                }`} />
-                                <span className="text-[10px] font-bold uppercase tracking-widest">{apt.status}</span>
-                              </div>
-                            </td>
-                            <td className="px-8 py-6 text-right">
-                              <div className="flex justify-end gap-2">
-                                {(apt.status === 'confirmed' || apt.status === 'pending') && (
-                                  <Button 
-                                    variant="ghost" 
-                                    onClick={() => handleCancel(apt._id)}
-                                    className="h-8 px-4 text-[10px] font-bold uppercase tracking-widest text-red-500 hover:text-red-700 hover:bg-red-50"
-                                  >
-                                    Cancel
-                                  </Button>
-                                )}
+                          <td className="px-8 py-6">
+                            <div className="text-sm font-bold">{dayjs(apt.date).format('MMM D, YYYY')}</div>
+                            <div className="text-[10px] text-slate-400 font-medium uppercase">{apt.startTime}</div>
+                          </td>
+                          <td className="px-8 py-6">
+                            <div className="flex items-center gap-2">
+                              <div className={`w-1.5 h-1.5 rounded-full ${
+                                apt.status === "confirmed" ? "bg-medical-blue" :
+                                apt.status === "completed" ? "bg-emerald-500" : "bg-red-500"
+                              }`} />
+                              <span className="text-[10px] font-bold uppercase tracking-widest">{apt.status}</span>
+                            </div>
+                          </td>
+                          <td className="px-8 py-6 text-right">
+                            <div className="flex justify-end gap-2">
+                              {(apt.status === 'confirmed' || apt.status === 'pending') && (
                                 <Button 
                                   variant="ghost" 
-                                  onClick={() => setSelectedAppointment(apt)}
-                                  className="h-8 px-4 text-[10px] font-bold uppercase tracking-widest"
-                                >
-                                  Details
-                                </Button>
-                              </div>
-                            </td>
-                          </motion.tr>
-                        ))
-                      ) : (
-                        <tr>
-                          <td colSpan={5} className="px-8 py-32 text-center">
-                            <div className="flex flex-col items-center">
-                              <div className="w-12 h-12 bg-slate-50 flex items-center justify-center mb-4">
-                                <Calendar className="w-6 h-6 text-slate-300" />
-                              </div>
-                              <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400">No appointments found in this category</p>
+                                  onClick={() => handleCancel(apt._id)}
+                                  className="h-8 px-4 text-[10px] font-bold uppercase tracking-widest text-red-500 hover:text-red-700 hover:bg-red-50"
+                                >Cancel</Button>
+                              )}
+                              <Button 
+                                variant="ghost" 
+                                onClick={() => setSelectedAppointment(apt)}
+                                className="h-8 px-4 text-[10px] font-bold uppercase tracking-widest"
+                              >Details</Button>
                             </div>
                           </td>
                         </tr>
-                      )}
-                    </AnimatePresence>
+                      ))
+                    ) : (
+                      <tr>
+                        <td colSpan={5} className="px-8 py-32 text-center">
+                          <div className="flex flex-col items-center">
+                            <div className="w-12 h-12 bg-slate-50 flex items-center justify-center mb-4">
+                              <Calendar className="w-6 h-6 text-slate-300" />
+                            </div>
+                            <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400">No appointments found in this category</p>
+                          </div>
+                        </td>
+                      </tr>
+                    )}
                   </tbody>
                 </table>
               </div>
@@ -326,15 +297,13 @@ function DashboardContent() {
         </div>
       </main>
 
-      <AnimatePresence>
-        {selectedAppointment && (
-          <AppointmentDetailModal 
-            appointment={selectedAppointment} 
-            onClose={() => setSelectedAppointment(null)} 
-            onCancel={handleCancel}
-          />
-        )}
-      </AnimatePresence>
+      {selectedAppointment && (
+        <AppointmentDetailModal 
+          appointment={selectedAppointment} 
+          onClose={() => setSelectedAppointment(null)} 
+          onCancel={handleCancel}
+        />
+      )}
     </div>
   );
 }
@@ -351,7 +320,6 @@ function ProfileView({ user }: { user: any }) {
       toast.error("New passwords do not match.");
       return;
     }
-
     setLoading(true);
     try {
       await api.put("/auth/update-password", { currentPassword, newPassword });
@@ -379,7 +347,6 @@ function ProfileView({ user }: { user: any }) {
           </CardContent>
         </Card>
       </div>
-
       <div className="lg:col-span-2 space-y-6">
         <Card className="rounded-none border-slate-200 shadow-none">
           <CardContent className="p-8">
@@ -387,41 +354,23 @@ function ProfileView({ user }: { user: any }) {
             <form onSubmit={handleUpdatePassword} className="space-y-6">
               <div className="space-y-2">
                 <label className="text-[10px] font-bold uppercase tracking-widest text-slate-400">Current Password</label>
-                <Input 
-                  type="password" 
-                  value={currentPassword}
-                  onChange={(e) => setCurrentPassword(e.target.value)}
-                  className="rounded-none border-slate-200 bg-slate-50 h-12 text-sm font-medium" 
-                  required
-                />
+                <Input type="password" value={currentPassword} onChange={(e) => setCurrentPassword(e.target.value)}
+                  className="rounded-none border-slate-200 bg-slate-50 h-12 text-sm font-medium" required />
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-2">
                   <label className="text-[10px] font-bold uppercase tracking-widest text-slate-400">New Password</label>
-                  <Input 
-                    type="password" 
-                    value={newPassword}
-                    onChange={(e) => setNewPassword(e.target.value)}
-                    className="rounded-none border-slate-200 bg-slate-50 h-12 text-sm font-medium" 
-                    required
-                  />
+                  <Input type="password" value={newPassword} onChange={(e) => setNewPassword(e.target.value)}
+                    className="rounded-none border-slate-200 bg-slate-50 h-12 text-sm font-medium" required />
                 </div>
                 <div className="space-y-2">
                   <label className="text-[10px] font-bold uppercase tracking-widest text-slate-400">Confirm New Password</label>
-                  <Input 
-                    type="password" 
-                    value={confirmPassword}
-                    onChange={(e) => setConfirmPassword(e.target.value)}
-                    className="rounded-none border-slate-200 bg-slate-50 h-12 text-sm font-medium" 
-                    required
-                  />
+                  <Input type="password" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)}
+                    className="rounded-none border-slate-200 bg-slate-50 h-12 text-sm font-medium" required />
                 </div>
               </div>
-              <Button 
-                type="submit" 
-                disabled={loading}
-                className="w-full h-12 bg-medical-blue text-white uppercase text-[10px] font-bold tracking-widest hover:bg-medical-blue/90"
-              >
+              <Button type="submit" disabled={loading}
+                className="w-full h-12 bg-medical-blue text-white uppercase text-[10px] font-bold tracking-widest hover:bg-medical-blue/90">
                 {loading ? <Loader2 className="animate-spin mr-2" size={14} /> : null}
                 Update Password
               </Button>
@@ -437,33 +386,17 @@ function AppointmentDetailModal({ appointment, onClose, onCancel }: { appointmen
   if (!appointment) return null;
 
   return (
-    <motion.div 
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-      className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm"
-      onClick={onClose}
-    >
-      <motion.div 
-        initial={{ scale: 0.95, opacity: 0 }}
-        animate={{ scale: 1, opacity: 1 }}
-        exit={{ scale: 0.95, opacity: 0 }}
-        className="bg-white w-full max-w-lg border-2 border-slate-900 shadow-[12px_12px_0px_0px_rgba(0,0,0,1)] p-8 lg:p-12 relative"
-        onClick={(e) => e.stopPropagation()}
-      >
-        <button 
-          onClick={onClose}
-          className="absolute top-6 right-6 text-slate-400 hover:text-slate-900 transition-colors"
-        >
+    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-fadeIn" onClick={onClose}>
+      <div className="bg-white w-full max-w-lg border-2 border-slate-900 shadow-[12px_12px_0px_0px_rgba(0,0,0,1)] p-8 lg:p-12 relative animate-scaleIn"
+        onClick={(e) => e.stopPropagation()}>
+        <button onClick={onClose} className="absolute top-6 right-6 text-slate-400 hover:text-slate-900 transition-colors">
           <XCircle size={24} />
         </button>
-
         <div className="space-y-8">
           <div>
             <span className="text-[10px] font-bold uppercase tracking-[0.3em] text-medical-blue mb-2 block font-medium">Summary</span>
             <h2 className="text-3xl font-bold uppercase tracking-tighter">Visit Details</h2>
           </div>
-
           <div className="space-y-6 bg-slate-50 p-6 border border-slate-200">
             <div className="grid grid-cols-2 gap-8">
               <div className="space-y-1">
@@ -475,7 +408,6 @@ function AppointmentDetailModal({ appointment, onClose, onCancel }: { appointmen
                 <p className="text-sm font-bold uppercase">{appointment.doctorId?.specialization}</p>
               </div>
             </div>
-
             <div className="grid grid-cols-2 gap-8 pt-4 border-t border-slate-200/50">
               <div className="space-y-1">
                 <p className="text-[9px] font-bold uppercase tracking-widest text-slate-400">Scheduled Date</p>
@@ -486,7 +418,6 @@ function AppointmentDetailModal({ appointment, onClose, onCancel }: { appointmen
                 <p className="text-sm font-bold uppercase">{appointment.startTime}</p>
               </div>
             </div>
-
             <div className="pt-4 border-t border-slate-200/50 flex items-center justify-between">
               <div className="space-y-1">
                 <p className="text-[9px] font-bold uppercase tracking-widest text-slate-400">Reference ID</p>
@@ -496,33 +427,24 @@ function AppointmentDetailModal({ appointment, onClose, onCancel }: { appointmen
                 appointment.status === 'confirmed' ? "bg-emerald-50 text-emerald-700 border-emerald-200" :
                 appointment.status === 'completed' ? "bg-slate-100 text-slate-700 border-slate-200" :
                 "bg-rose-50 text-rose-700 border-rose-200"
-              }`}>
-                {appointment.status}
-              </div>
+              }`}>{appointment.status}</div>
             </div>
           </div>
-
           <div className="space-y-3">
             {(appointment.status === 'confirmed' || appointment.status === 'pending') && (
-              <Button 
-                onClick={() => onCancel(appointment._id)}
-                variant="outline" 
-                className="w-full h-14 border-red-100 text-red-500 uppercase text-xs font-bold tracking-widest hover:bg-red-50 hover:border-red-200"
-              >
+              <Button onClick={() => onCancel(appointment._id)} variant="outline" 
+                className="w-full h-14 border-red-100 text-red-500 uppercase text-xs font-bold tracking-widest hover:bg-red-50 hover:border-red-200">
                 Cancel Appointment
               </Button>
             )}
-            <Button 
-              onClick={onClose}
-              variant="outline" 
-              className="w-full h-14 border-slate-200 text-slate-500 uppercase text-xs font-bold tracking-widest hover:bg-slate-50"
-            >
+            <Button onClick={onClose} variant="outline" 
+              className="w-full h-14 border-slate-200 text-slate-500 uppercase text-xs font-bold tracking-widest hover:bg-slate-50">
               Close Overview
             </Button>
           </div>
         </div>
-      </motion.div>
-    </motion.div>
+      </div>
+    </div>
   );
 }
 

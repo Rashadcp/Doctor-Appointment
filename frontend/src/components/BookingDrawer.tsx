@@ -12,7 +12,6 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { SideDrawer } from "@/components/ui/SideDrawer";
-import { motion, AnimatePresence } from "framer-motion";
 import api from "@/lib/api";
 import socket from "@/services/socket";
 import dayjs from "dayjs";
@@ -226,19 +225,14 @@ export const BookingDrawer = ({ isOpen, onClose, doctor }: BookingDrawerProps) =
           />
         </div>
 
-        <AnimatePresence>
           {error && (
-            <motion.div 
-              initial={{ opacity: 0, y: -10 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -10 }}
-              className="p-4 bg-rose-50 border border-rose-200 text-rose-600 text-[10px] font-bold uppercase tracking-widest flex items-center gap-2"
+            <div 
+              className="p-4 bg-rose-50 border border-rose-200 text-rose-600 text-[10px] font-bold uppercase tracking-widest flex items-center gap-2 animate-slideDown"
             >
               <AlertCircle size={14} />
               {error}
-            </motion.div>
+            </div>
           )}
-        </AnimatePresence>
 
         <div className="pt-4">
           <Button 

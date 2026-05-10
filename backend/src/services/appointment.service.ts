@@ -169,7 +169,7 @@ export const updateAppointmentStatus = async (
     appointmentId,
     { status },
     { new: true }
-  );
+  ).populate('doctorId', 'name');
 
   if (!appointment) {
     throw { status: 404, message: 'Appointment not found' };

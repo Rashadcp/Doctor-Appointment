@@ -1,7 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
-import { motion } from "framer-motion";
+import React, { useState, Suspense } from "react";
 import { User, Mail, Lock, ArrowRight, CheckCircle2, ChevronLeft, Stethoscope } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
@@ -10,6 +9,14 @@ import { useAuth } from "@/context/AuthContext";
 import { useSearchParams } from "next/navigation";
 
 export default function RegisterPage() {
+  return (
+    <Suspense fallback={<div className="h-screen w-full bg-white" />}>
+      <RegisterContent />
+    </Suspense>
+  );
+}
+
+function RegisterContent() {
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -68,10 +75,8 @@ export default function RegisterPage() {
 
       {/* Right Side: Form */}
       <div className="w-full lg:w-1/2 flex items-center justify-center p-8 bg-white">
-        <motion.div 
-          initial={{ opacity: 0, x: 20 }}
-          animate={{ opacity: 1, x: 0 }}
-          className="w-full max-w-md"
+        <div 
+          className="w-full max-w-md animate-slideUp"
         >
           <div className="mb-10">
             <div className="w-12 h-12 bg-medical-blue flex items-center justify-center mb-6">
@@ -82,13 +87,9 @@ export default function RegisterPage() {
           </div>
 
           {error && (
-            <motion.div 
-              initial={{ opacity: 0, y: -10 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="mb-6 p-4 bg-red-50 border border-red-100 text-red-600 text-xs font-bold uppercase tracking-widest rounded-none"
-            >
+            <div className="mb-6 p-4 bg-red-50 border border-red-100 text-red-600 text-xs font-bold uppercase tracking-widest rounded-none animate-slideDown">
               {error}
-            </motion.div>
+            </div>
           )}
 
           <form onSubmit={handleSubmit} className="space-y-4">
@@ -170,7 +171,7 @@ export default function RegisterPage() {
               </Link>
             </p>
           </div>
-        </motion.div>
+        </div>
       </div>
     </div>
   );

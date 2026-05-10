@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import Image from "next/image";
 import { 
   Shield, 
   Calendar, 
@@ -18,12 +19,10 @@ import {
 import { Button } from "@/components/ui/Button";
 import { Card, CardContent } from "@/components/ui/Card";
 import Link from "next/link";
-import { motion, AnimatePresence } from "framer-motion";
 import { BookingDrawer } from "@/components/BookingDrawer";
 import { useAuth } from "@/context/AuthContext";
 import { useRouter } from "next/navigation";
 import api from "@/lib/api";
-import socket from "@/services/socket";
 
 export default function DoctorProfilePage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = React.use(params);
@@ -90,10 +89,13 @@ export default function DoctorProfilePage({ params }: { params: Promise<{ id: st
           <div className="flex flex-col lg:flex-row gap-12 items-start">
             {/* Portrait */}
             <div className="w-full lg:w-72 shrink-0 aspect-[3/4] bg-slate-100 border-2 border-slate-900 shadow-[10px_10px_0px_0px_rgba(15,103,254,1)] relative overflow-hidden">
-              <img 
-                src={doctor.image || "https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?auto=format&fit=crop&q=80&w=600&h=800"} 
-                alt={doctor.name} 
-                className="w-full h-full object-cover"
+              <Image
+                src={doctor.image || "https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?auto=format&fit=crop&q=80&w=600&h=800"}
+                alt={doctor.name}
+                fill
+                sizes="(max-width: 1024px) 100vw, 288px"
+                className="object-cover"
+                priority
               />
               <div className="absolute top-4 left-4">
                 <Link href="/doctors">

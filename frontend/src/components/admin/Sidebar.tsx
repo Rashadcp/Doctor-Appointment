@@ -12,8 +12,7 @@ import {
   Grid,
   X
 } from "lucide-react";
-import { useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/context/AuthContext";
 import { toast } from "sonner";
@@ -105,71 +104,64 @@ export const AdminSidebar = () => {
       </aside>
 
       {/* Mobile Menu Overlay */}
-      <AnimatePresence>
-        {isOpen && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-ink-black/20 backdrop-blur-sm z-[51] lg:hidden"
-            onClick={() => setIsOpen(false)}
+      {isOpen && (
+        <div 
+          className="fixed inset-0 z-[51] lg:hidden animate-fadeIn bg-black/20 backdrop-blur-sm"
+          onClick={() => setIsOpen(false)}
+        >
+          <div
+            className={cn(
+              "w-4/5 h-full bg-white border-r border-slate-200 flex flex-col p-6 transition-transform duration-300 ease-in-out",
+              isOpen ? "translate-x-0" : "-translate-x-full"
+            )}
+            onClick={(e) => e.stopPropagation()}
           >
-            <motion.div
-              initial={{ x: "-100%" }}
-              animate={{ x: 0 }}
-              exit={{ x: "-100%" }}
-              transition={{ type: "tween", ease: "linear", duration: 0.2 }}
-              className="w-4/5 h-full bg-white border-r border-slate-200 flex flex-col p-6"
-              onClick={(e) => e.stopPropagation()}
-            >
-              <div className="flex items-center justify-between mb-8">
-                <div className="flex items-center gap-2">
-                  <div className="w-8 h-8 bg-ink-black flex items-center justify-center">
-                    <span className="text-white font-mono font-bold">H</span>
-                  </div>
-                  <span className="font-bold uppercase tracking-tight">HealthEngine</span>
+            <div className="flex items-center justify-between mb-8">
+              <div className="flex items-center gap-2">
+                <div className="w-8 h-8 bg-ink-black flex items-center justify-center">
+                  <span className="text-white font-mono font-bold">H</span>
                 </div>
-                <button onClick={() => setIsOpen(false)}>
-                  <X size={20} />
-                </button>
+                <span className="font-bold uppercase tracking-tight">HealthEngine</span>
               </div>
+              <button onClick={() => setIsOpen(false)}>
+                <X size={20} />
+              </button>
+            </div>
 
-              <nav className="flex flex-col gap-2">
-                {menuItems.map((item) => {
-                  const isActive = pathname === item.href;
-                  return (
-                    <Link
-                      key={item.name}
-                      href={item.href}
-                      onClick={() => setIsOpen(false)}
-                      className={cn(
-                        "flex items-center gap-4 px-4 py-4 border",
-                        isActive 
-                          ? "bg-slate-50 border-slate-200 text-deep-blue" 
-                          : "border-transparent text-slate-600"
-                      )}
-                    >
-                      <item.icon size={20} />
-                      <span className="font-bold uppercase tracking-widest text-sm">{item.name}</span>
-                    </Link>
-                  );
-                })}
+            <nav className="flex flex-col gap-2">
+              {menuItems.map((item) => {
+                const isActive = pathname === item.href;
+                return (
+                  <Link
+                    key={item.name}
+                    href={item.href}
+                    onClick={() => setIsOpen(false)}
+                    className={cn(
+                      "flex items-center gap-4 px-4 py-4 border",
+                      isActive 
+                        ? "bg-slate-50 border-slate-200 text-deep-blue" 
+                        : "border-transparent text-slate-600"
+                    )}
+                  >
+                    <item.icon size={20} />
+                    <span className="font-bold uppercase tracking-widest text-sm">{item.name}</span>
+                  </Link>
+                );
+              })}
+            </nav>
 
-              </nav>
-
-              <div className="mt-auto pt-6 border-t border-slate-100">
-                <button 
-                  onClick={handleLogout}
-                  className="flex items-center gap-4 px-4 py-4 text-red-500 w-full"
-                >
-                  <LogOut size={20} />
-                  <span className="font-bold uppercase tracking-widest text-sm">Sign Out</span>
-                </button>
-              </div>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+            <div className="mt-auto pt-6 border-t border-slate-100">
+              <button 
+                onClick={handleLogout}
+                className="flex items-center gap-4 px-4 py-4 text-red-500 w-full"
+              >
+                <LogOut size={20} />
+                <span className="font-bold uppercase tracking-widest text-sm">Sign Out</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </>
   );
 };

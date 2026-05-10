@@ -1,8 +1,8 @@
 "use client";
 
 import React, { useState } from "react";
-import { motion } from "framer-motion";
-import { Star, MapPin, Clock, ArrowUpRight, Stethoscope } from "lucide-react";
+import Image from "next/image";
+import { Star, MapPin, ArrowUpRight, Stethoscope } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/Card";
 import { BookingDrawer } from "./BookingDrawer";
 import { Button } from "@/components/ui/Button";
@@ -48,10 +48,13 @@ export const DoctorCard = ({
       <Card className="group border-slate-200 hover:border-slate-900 transition-colors bg-white">
         <Link href={`/doctors/${id}`}>
           <div className="relative aspect-[4/5] overflow-hidden bg-slate-100 cursor-pointer">
-            <img 
-              src={imageUrl || "https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?auto=format&fit=crop&q=80&w=600&h=800"} 
-              alt={name} 
-              className="w-full h-full object-cover transition-all duration-500 scale-105 group-hover:scale-100"
+            <Image
+              src={imageUrl || "https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?auto=format&fit=crop&q=80&w=600&h=800"}
+              alt={name}
+              fill
+              sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
+              className="object-cover transition-all duration-500 scale-105 group-hover:scale-100"
+              loading="lazy"
             />
             <div className="absolute top-4 right-4 bg-white px-3 py-1 text-[10px] font-bold uppercase tracking-widest border border-slate-200">
               Available {availability}

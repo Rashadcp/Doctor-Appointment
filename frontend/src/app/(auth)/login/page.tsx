@@ -1,7 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
-import { motion } from "framer-motion";
+import React, { useState, Suspense } from "react";
 import { Stethoscope, Activity, Lock, Mail, ArrowRight, ChevronLeft } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
@@ -10,6 +9,14 @@ import { useAuth } from "@/context/AuthContext";
 import { useSearchParams } from "next/navigation";
 
 export default function LoginPage() {
+  return (
+    <Suspense fallback={<div className="h-screen w-full bg-white" />}>
+      <LoginContent />
+    </Suspense>
+  );
+}
+
+function LoginContent() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -55,10 +62,8 @@ export default function LoginPage() {
 
       {/* Right Side: Form */}
       <div className="w-full lg:w-1/2 flex items-center justify-center p-8 bg-slate-50">
-        <motion.div 
-          initial={{ opacity: 0, x: 20 }}
-          animate={{ opacity: 1, x: 0 }}
-          className="w-full max-w-md"
+        <div 
+          className="w-full max-w-md animate-slideUp"
         >
           <div className="mb-10">
             <div className="w-12 h-12 bg-medical-blue flex items-center justify-center mb-6">
@@ -69,13 +74,9 @@ export default function LoginPage() {
           </div>
 
           {error && (
-            <motion.div 
-              initial={{ opacity: 0, y: -10 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="mb-6 p-4 bg-red-50 border border-red-100 text-red-600 text-xs font-bold uppercase tracking-widest rounded-none"
-            >
+            <div className="mb-6 p-4 bg-red-50 border border-red-100 text-red-600 text-xs font-bold uppercase tracking-widest rounded-none animate-slideDown">
               {error}
-            </motion.div>
+            </div>
           )}
 
           <form onSubmit={handleLogin} className="space-y-6">
@@ -130,7 +131,7 @@ export default function LoginPage() {
               </Link>
             </p>
           </div>
-        </motion.div>
+        </div>
       </div>
     </div>
   );

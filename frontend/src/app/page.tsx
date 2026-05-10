@@ -1,5 +1,4 @@
 import React from "react";
-import { motion } from "framer-motion"; // Note: motion needs "use client" so I'll need to wrap sections or use a client wrapper
 import { 
   Stethoscope, 
   ArrowRight, 
@@ -16,9 +15,8 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import Link from "next/link";
+import Image from "next/image";
 import { HeroSearch } from "@/components/HeroSearch";
-
-// We'll use a wrapper for motion animations to keep the page as a Server Component
 import { ClientMotionWrapper } from "@/components/ClientMotionWrapper";
 
 const TOP_SPECIALTIES = [
@@ -91,10 +89,13 @@ export default async function Home() {
           <ClientMotionWrapper initial={{ opacity: 0, scale: 0.98 }} animate={{ opacity: 1, scale: 1 }}>
             <div className="relative hidden lg:block">
               <div className="aspect-[4/3] bg-slate-200 relative overflow-hidden border-2 border-slate-900 shadow-[15px_15px_0px_0px_rgba(15,103,254,1)]">
-                 <img 
-                  src="/doctor_consulting_patient.png" 
-                  alt="Doctor Consulting Patient" 
-                  className="w-full h-full object-cover"
+                <Image
+                  src="/doctor_consulting_patient.png"
+                  alt="Doctor Consulting Patient"
+                  fill
+                  sizes="(max-width: 1024px) 0vw, 50vw"
+                  className="object-cover"
+                  priority
                 />
               </div>
             </div>
@@ -163,10 +164,10 @@ export default async function Home() {
           <div className="flex flex-col lg:flex-row justify-between items-start gap-20">
             <div className="max-w-md">
               <div className="text-[10px] font-bold uppercase tracking-[0.3em] text-medical-blue mb-6">How it works</div>
-              <h2 className="text-5xl font-bold uppercase tracking-tighter leading-none mb-8">
+              <h2 className="text-5xl font-bold uppercase tracking-tighter leading-none mb-8 text-white">
                 Your Health, <br /> Made Simple.
               </h2>
-              <p className="text-slate-400 font-medium leading-relaxed">
+              <p className="text-slate-300 font-medium leading-relaxed">
                 We've designed every step to be as easy as possible. From finding a doctor to your final consultation, we're with you all the way.
               </p>
             </div>
@@ -177,10 +178,10 @@ export default async function Home() {
                 { step: "02", title: "Book", desc: "Choose a time that works for you and get instant confirmation." },
                 { step: "03", title: "Meet", desc: "Speak with your doctor and get the care you deserve." },
               ].map((item, i) => (
-                <div key={i} className="p-8 border border-white/10 hover:border-medical-blue/50 transition-colors group">
-                  <div className="text-4xl font-light italic text-medical-blue/30 group-hover:text-medical-blue transition-colors mb-6">{item.step}</div>
-                  <h4 className="text-xl font-bold uppercase tracking-tight mb-4">{item.title}</h4>
-                  <p className="text-sm text-slate-500 font-medium leading-relaxed">{item.desc}</p>
+                <div key={i} className="p-8 border border-white/20 hover:border-medical-blue/70 transition-colors group">
+                  <div className="text-4xl font-light italic text-medical-blue/60 group-hover:text-medical-blue transition-colors mb-6">{item.step}</div>
+                  <h4 className="text-xl font-bold uppercase tracking-tight mb-4 text-white">{item.title}</h4>
+                  <p className="text-sm text-slate-300 font-medium leading-relaxed">{item.desc}</p>
                 </div>
               ))}
             </div>
@@ -200,18 +201,24 @@ export default async function Home() {
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            <div className="aspect-video bg-slate-200 border-2 border-slate-900 overflow-hidden shadow-[12px_12px_0px_0px_rgba(15,103,254,1)]">
-              <img 
-                src="/professional_nurse.png" 
-                alt="Hospital Care" 
-                className="w-full h-full object-cover"
+            <div className="aspect-video bg-slate-200 border-2 border-slate-900 overflow-hidden shadow-[12px_12px_0px_0px_rgba(15,103,254,1)] relative">
+              <Image
+                src="/professional_nurse.png"
+                alt="Hospital Care"
+                fill
+                sizes="(max-width: 768px) 100vw, 50vw"
+                className="object-cover"
+                loading="lazy"
               />
             </div>
-            <div className="aspect-video bg-slate-200 border-2 border-slate-900 overflow-hidden shadow-[12px_12px_0px_0px_rgba(0,0,0,1)]">
-              <img 
-                src="/medical_team.png" 
-                alt="Clinical Team" 
-                className="w-full h-full object-cover"
+            <div className="aspect-video bg-slate-200 border-2 border-slate-900 overflow-hidden shadow-[12px_12px_0px_0px_rgba(0,0,0,1)] relative">
+              <Image
+                src="/medical_team.png"
+                alt="Clinical Team"
+                fill
+                sizes="(max-width: 768px) 100vw, 50vw"
+                className="object-cover"
+                loading="lazy"
               />
             </div>
           </div>

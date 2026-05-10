@@ -31,7 +31,11 @@ export default function AppointmentCommandCenter() {
     setLoading(true);
     try {
       const response = await api.get("/admin/appointments");
-      setAppointments(response.data);
+      // Sort by creation time (descending) - newest bookings first
+      const sorted = [...response.data].sort((a, b) => {
+        return dayjs(b.createdAt).valueOf() - dayjs(a.createdAt).valueOf();
+      });
+      setAppointments(sorted);
     } catch (error) {
       console.error("Fetch error:", error);
       toast.error("Error: Unable to load appointments.");
@@ -118,8 +122,8 @@ export default function AppointmentCommandCenter() {
         <div className="bg-white border border-slate-200 overflow-hidden">
           <div className="p-4 bg-slate-50 border-b border-slate-200 grid grid-cols-12 text-[10px] font-bold uppercase tracking-widest text-slate-400">
              <div className="col-span-2">Time & ID</div>
-             <div className="col-span-3">Patient Details</div>
              <div className="col-span-3">Practitioner</div>
+             <div className="col-span-3">Patient Details</div>
              <div className="col-span-2">Status</div>
              <div className="col-span-2 text-right">Actions</div>
           </div>
@@ -137,19 +141,19 @@ export default function AppointmentCommandCenter() {
                     <div className="text-[9px] font-mono text-slate-200">{apt._id.slice(-6).toUpperCase()}</div>
                   </div>
                   <div className="col-span-3">
+                     <div className="flex items-center gap-2 text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                        <Stethoscope size={12} className="text-deep-blue/50" />
+                        {apt.doctorId?.name || "Unassigned"}
+                     </div>
+                  </div>
+                  <div className="col-span-3">
                      <div className="flex items-center gap-3">
                         <div className="w-8 h-8 bg-slate-100 flex items-center justify-center border border-slate-200">
                           <User size={14} className="text-slate-400" />
                         </div>
                         <div className="flex flex-col">
-                          <span className="text-xs font-bold uppercase tracking-tight">{apt.patientId?.name || "Anonymous"}</span>
+                          <span className="text-sm font-bold uppercase tracking-tight text-ink-black">{apt.patientId?.name || "Anonymous"}</span>
                         </div>
-                     </div>
-                  </div>
-                  <div className="col-span-3">
-                     <div className="flex items-center gap-2 text-xs font-bold text-slate-600">
-                        <Stethoscope size={14} className="text-deep-blue" />
-                        {apt.doctorId?.name || "Unassigned"}
                      </div>
                   </div>
                   <div className="col-span-2">

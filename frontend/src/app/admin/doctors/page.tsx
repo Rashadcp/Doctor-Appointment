@@ -1,22 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import { 
-  Plus, 
-  Search, 
-  MoreHorizontal, 
-  Filter, 
-  Download,
-  Mail,
-  Phone,
-  MapPin,
-  Stethoscope,
-  Trash2,
-  RefreshCcw,
-  Loader2,
-  Edit
-} from "lucide-react";
+import { Plus, Search, MoreHorizontal, Filter, Download, Mail, Phone, MapPin, Stethoscope, Trash2, RefreshCcw, Loader2, Edit } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { SideDrawer } from "@/components/ui/SideDrawer";
 import { Skeleton } from "@/components/ui/Skeleton";
@@ -551,143 +536,127 @@ export default function DoctorManagement() {
       </SideDrawer>
 
       {/* New Specialty Modal */}
-      <AnimatePresence>
-        {isSpecialtyModalOpen && (
-          <>
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              onClick={() => setIsSpecialtyModalOpen(false)}
-              className="fixed inset-0 bg-ink-black/60 backdrop-blur-md z-[100]"
-            />
-            <motion.div
-              initial={{ opacity: 0, scale: 0.9, y: 20 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.9, y: 20 }}
-              className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-sm bg-white p-8 z-[101] shadow-2xl border border-slate-200"
-            >
-              <div className="space-y-6">
-                <div>
-                  <h3 className="text-sm font-bold uppercase tracking-widest text-ink-black">New Specialty</h3>
-                  <p className="text-[10px] text-slate-400 mt-1">Create a new specialization category</p>
-                </div>
-
-                <div className="space-y-2">
-                  <label className="text-[10px] font-bold uppercase tracking-widest text-slate-400">Specialty Name</label>
-                  <input 
-                    autoFocus
-                    value={newSpecialtyInput}
-                    onChange={(e) => setNewSpecialtyInput(e.target.value)}
-                    className="input-field w-full uppercase"
-                    placeholder="e.g. DERMATOLOGY"
-                  />
-                </div>
-
-                <div className="flex gap-4">
-                  <Button 
-                    onClick={handleSaveNewSpecialty}
-                    className="flex-1 bg-ink-black text-white h-12 uppercase text-[10px] tracking-widest font-bold"
-                  >
-                    Save Category
-                  </Button>
-                  <Button 
-                    onClick={() => setIsSpecialtyModalOpen(false)}
-                    className="px-6 h-12 border border-slate-200 text-slate-500 uppercase text-[10px] tracking-widest font-bold hover:bg-slate-50"
-                  >
-                    Cancel
-                  </Button>
-                </div>
+      {isSpecialtyModalOpen && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+          <div
+            onClick={() => setIsSpecialtyModalOpen(false)}
+            className="fixed inset-0 bg-black/60 backdrop-blur-md animate-fadeIn"
+          />
+          <div
+            className="relative w-full max-w-sm bg-white p-8 z-[101] shadow-2xl border border-slate-200 animate-scaleIn"
+          >
+            <div className="space-y-6">
+              <div>
+                <h3 className="text-sm font-bold uppercase tracking-widest text-ink-black">New Specialty</h3>
+                <p className="text-[10px] text-slate-400 mt-1">Create a new specialization category</p>
               </div>
-            </motion.div>
-          </>
-        )}
-      </AnimatePresence>
+
+              <div className="space-y-2">
+                <label className="text-[10px] font-bold uppercase tracking-widest text-slate-400">Specialty Name</label>
+                <input 
+                  autoFocus
+                  value={newSpecialtyInput}
+                  onChange={(e) => setNewSpecialtyInput(e.target.value)}
+                  className="input-field w-full uppercase"
+                  placeholder="e.g. DERMATOLOGY"
+                />
+              </div>
+
+              <div className="flex gap-4">
+                <Button 
+                  onClick={handleSaveNewSpecialty}
+                  className="flex-1 bg-ink-black text-white h-12 uppercase text-[10px] tracking-widest font-bold"
+                >
+                  Save Category
+                </Button>
+                <Button 
+                  onClick={() => setIsSpecialtyModalOpen(false)}
+                  className="px-6 h-12 border border-slate-200 text-slate-500 uppercase text-[10px] tracking-widest font-bold hover:bg-slate-50"
+                >
+                  Cancel
+                </Button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Specialty Manager Modal */}
-      <AnimatePresence>
-        {isSpecialtyManagerOpen && (
-          <>
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              onClick={() => setIsSpecialtyManagerOpen(false)}
-              className="fixed inset-0 bg-ink-black/60 backdrop-blur-md z-[100]"
-            />
-            <motion.div
-              initial={{ opacity: 0, scale: 0.9, y: 20 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.9, y: 20 }}
-              className="fixed left-1/2 top-[10%] -translate-x-1/2 w-full max-w-md bg-white z-[101] shadow-2xl border border-slate-200 flex flex-col max-h-[80vh]"
-            >
-              <div className="p-6 border-b border-slate-100 flex items-center justify-between sticky top-0 bg-white z-10">
-                <div>
-                  <h3 className="text-sm font-bold uppercase tracking-widest text-ink-black">Clinical Specialties</h3>
-                  <p className="text-[10px] text-slate-400 mt-1">Manage specialization categories</p>
-                </div>
-                <button 
-                  onClick={() => setIsSpecialtyManagerOpen(false)} 
-                  className="w-8 h-8 flex items-center justify-center text-slate-400 hover:text-ink-black hover:bg-slate-50 transition-colors"
-                >
-                  <Plus size={20} className="rotate-45" />
-                </button>
+      {isSpecialtyManagerOpen && (
+        <div className="fixed inset-0 z-[100] flex items-start justify-center p-4 pt-[10%]">
+          <div
+            onClick={() => setIsSpecialtyManagerOpen(false)}
+            className="fixed inset-0 bg-black/60 backdrop-blur-md animate-fadeIn"
+          />
+          <div
+            className="relative w-full max-w-md bg-white z-[101] shadow-2xl border border-slate-200 flex flex-col max-h-[80vh] animate-scaleIn"
+          >
+            <div className="p-6 border-b border-slate-100 flex items-center justify-between sticky top-0 bg-white z-10">
+              <div>
+                <h3 className="text-sm font-bold uppercase tracking-widest text-ink-black">Clinical Specialties</h3>
+                <p className="text-[10px] text-slate-400 mt-1">Manage specialization categories</p>
               </div>
+              <button 
+                onClick={() => setIsSpecialtyManagerOpen(false)} 
+                className="w-8 h-8 flex items-center justify-center text-slate-400 hover:text-ink-black hover:bg-slate-50 transition-colors"
+              >
+                <Plus size={20} className="rotate-45" />
+              </button>
+            </div>
 
-              <div className="flex-1 overflow-y-auto p-6 space-y-3">
-                {specializations.map((spec) => (
-                  <div key={spec} className="flex items-center justify-between p-4 bg-slate-50 border border-slate-200 group">
-                    {editingSpecialtyName === spec ? (
-                      <div className="flex gap-2 w-full">
-                        <input 
-                          autoFocus
-                          defaultValue={spec}
-                          id={`edit-spec-${spec}`}
-                          className="input-field flex-1 h-10 text-xs"
-                        />
+            <div className="flex-1 overflow-y-auto p-6 space-y-3">
+              {specializations.map((spec) => (
+                <div key={spec} className="flex items-center justify-between p-4 bg-slate-50 border border-slate-200 group">
+                  {editingSpecialtyName === spec ? (
+                    <div className="flex gap-2 w-full">
+                      <input 
+                        autoFocus
+                        defaultValue={spec}
+                        id={`edit-spec-${spec}`}
+                        className="input-field flex-1 h-10 text-xs"
+                      />
+                      <button 
+                        onClick={() => {
+                          const input = document.getElementById(`edit-spec-${spec}`) as HTMLInputElement;
+                          handleUpdateSpecialty(spec, input.value);
+                          setEditingSpecialtyName(null);
+                        }}
+                        className="px-3 bg-emerald-500 text-white text-[10px] font-bold"
+                      >
+                        SAVE
+                      </button>
+                      <button 
+                        onClick={() => setEditingSpecialtyName(null)}
+                        className="px-3 bg-white border border-slate-200 text-[10px] font-bold"
+                      >
+                        X
+                      </button>
+                    </div>
+                  ) : (
+                    <>
+                      <span className="text-xs font-bold uppercase text-ink-black">{spec}</span>
+                      <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                         <button 
-                          onClick={() => {
-                            const input = document.getElementById(`edit-spec-${spec}`) as HTMLInputElement;
-                            handleUpdateSpecialty(spec, input.value);
-                            setEditingSpecialtyName(null);
-                          }}
-                          className="px-3 bg-emerald-500 text-white text-[10px] font-bold"
+                          onClick={() => setEditingSpecialtyName(spec)}
+                          className="p-2 text-slate-400 hover:text-deep-blue"
                         >
-                          SAVE
+                          <Edit size={14} />
                         </button>
                         <button 
-                          onClick={() => setEditingSpecialtyName(null)}
-                          className="px-3 bg-white border border-slate-200 text-[10px] font-bold"
+                          onClick={() => handleDeleteSpecialty(spec)}
+                          className="p-2 text-slate-400 hover:text-red-500"
                         >
-                          X
+                          <Trash2 size={14} />
                         </button>
                       </div>
-                    ) : (
-                      <>
-                        <span className="text-xs font-bold uppercase text-ink-black">{spec}</span>
-                        <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                          <button 
-                            onClick={() => setEditingSpecialtyName(spec)}
-                            className="p-2 text-slate-400 hover:text-deep-blue"
-                          >
-                            <Edit size={14} />
-                          </button>
-                          <button 
-                            onClick={() => handleDeleteSpecialty(spec)}
-                            className="p-2 text-slate-400 hover:text-red-500"
-                          >
-                            <Trash2 size={14} />
-                          </button>
-                        </div>
-                      </>
-                    )}
-                  </div>
-                ))}
-              </div>
-            </motion.div>
-          </>
-        )}
-      </AnimatePresence>
+                    </>
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useRef } from "react";
 import { Search, Filter, X, ChevronDown, SlidersHorizontal, Loader2 } from "lucide-react";
 import { DoctorCard, DoctorSkeleton } from "@/components/DoctorCard";
 import { Input } from "@/components/ui/Input";
@@ -12,9 +12,16 @@ import { toast } from "sonner";
 export default function DoctorDiscoveryPage() {
   const [doctors, setDoctors] = useState<any[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
+  const [debouncedQuery, setDebouncedQuery] = useState("");
   const [selectedSpecialty, setSelectedSpecialty] = useState("All Specialties");
   const [specializations, setSpecializations] = useState<string[]>(["All Specialties"]);
   const [isLoading, setIsLoading] = useState(true);
+
+  // Debounce search — only fires 400ms after the user stops typing
+  useEffect(() => {
+    const timer = setTimeout(() => setDebouncedQuery(searchQuery), 400);
+    return () => clearTimeout(timer);
+  }, [searchQuery]);
 
   const fetchSpecializations = async () => {
     try {
@@ -30,7 +37,7 @@ export default function DoctorDiscoveryPage() {
     try {
       const response = await api.get("/doctors", {
         params: {
-          search: searchQuery,
+          search: debouncedQuery,
           specialization: selectedSpecialty === "All Specialties" ? undefined : selectedSpecialty
         }
       });
@@ -41,7 +48,7 @@ export default function DoctorDiscoveryPage() {
     } finally {
       setIsLoading(false);
     }
-  }, [searchQuery, selectedSpecialty]);
+  }, [debouncedQuery, selectedSpecialty]);
 
   useEffect(() => {
     fetchDoctors();

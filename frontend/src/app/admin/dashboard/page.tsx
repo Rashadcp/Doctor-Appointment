@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { motion } from "framer-motion";
 import { 
   Users, 
   CalendarCheck, 
@@ -38,8 +37,14 @@ export default function AdminDashboard() {
         api.get("/admin/dashboard-stats"),
         api.get("/admin/appointments")
       ]);
+
+      // Sort by creation time (descending) - newest bookings first
+      const sorted = [...apptsRes.data].sort((a, b) => {
+        return dayjs(b.createdAt).valueOf() - dayjs(a.createdAt).valueOf();
+      });
+
       setStats(statsRes.data);
-      setRecentAppointments(apptsRes.data.slice(0, 5));
+      setRecentAppointments(sorted.slice(0, 5));
       setLastSync(new Date());
     } catch (error) {
       console.error("Dashboard fetch error:", error);
@@ -94,12 +99,10 @@ export default function AdminDashboard() {
           [1, 2, 3].map(i => <Skeleton key={i} className="h-40" />)
         ) : (
           kpis.map((stat, i) => (
-            <motion.div
+            <div
               key={stat.label}
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: i * 0.1, ease: "linear" }}
-              className="bg-white border border-slate-200 p-6 flex flex-col justify-between"
+              style={{ animationDelay: `${i * 100}ms` }}
+              className="bg-white border border-slate-200 p-6 flex flex-col justify-between animate-slideUp"
             >
               <div className="flex justify-between items-start mb-4">
                 <div className="w-10 h-10 border border-slate-100 flex items-center justify-center bg-slate-50 text-ink-black">
@@ -118,7 +121,7 @@ export default function AdminDashboard() {
                   {stat.value.toLocaleString()}
                 </span>
               </div>
-            </motion.div>
+            </div>
           ))
         )}
       </div>
@@ -145,8 +148,8 @@ export default function AdminDashboard() {
                       <span className="text-[9px] text-slate-400 font-bold uppercase">{dayjs(activity.date).format('MMM DD')}</span>
                     </div>
                     <div className="flex flex-col">
-                      <span className="text-xs font-bold text-ink-black">{activity.doctorId?.name || "Unassigned"}</span>
-                      <span className="text-[10px] text-slate-400">Patient: {activity.patientId?.name || "Anonymous"}</span>
+                      <span className="text-sm font-bold text-ink-black uppercase tracking-tight">{activity.patientId?.name || "Anonymous"}</span>
+                      <span className="text-[10px] text-slate-400 font-medium uppercase tracking-widest">{activity.doctorId?.name || "Unassigned"}</span>
                     </div>
                   </div>
                   <div className="flex items-center gap-6">

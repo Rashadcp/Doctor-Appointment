@@ -1,16 +1,23 @@
 "use client";
 
-import { motion, HTMLMotionProps } from "framer-motion";
 import React from "react";
 
-interface ClientMotionWrapperProps extends HTMLMotionProps<"div"> {
+interface ClientMotionWrapperProps {
   children: React.ReactNode;
+  initial?: Record<string, any>;
+  animate?: Record<string, any>;
+  className?: string;
+  [key: string]: any;
 }
 
-export const ClientMotionWrapper = ({ children, ...props }: ClientMotionWrapperProps) => {
+/**
+ * Lightweight replacement for framer-motion's motion.div.
+ * Uses CSS animations instead of shipping ~60KB of JS.
+ */
+export const ClientMotionWrapper = ({ children, className = "", ...props }: ClientMotionWrapperProps) => {
   return (
-    <motion.div {...props}>
+    <div className={`animate-slideUp ${className}`}>
       {children}
-    </motion.div>
+    </div>
   );
 };

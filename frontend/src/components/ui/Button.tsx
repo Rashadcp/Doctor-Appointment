@@ -1,7 +1,6 @@
 "use client";
 
 import React from "react";
-import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
 
 interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
@@ -28,12 +27,10 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
     };
 
     return (
-      <motion.button
+      <button
         ref={ref}
-        transition={{ type: "tween", ease: "linear", duration: 0.15 }}
-        whileTap={{ scale: 0.98 }}
         className={cn(
-          "inline-flex items-center justify-center transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-deep-blue disabled:opacity-50 disabled:pointer-events-none rounded-none border border-transparent",
+          "inline-flex items-center justify-center transition-all duration-150 active:scale-[0.98] focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-deep-blue disabled:opacity-50 disabled:pointer-events-none rounded-none border border-transparent",
           variants[variant],
           sizes[size],
           className
@@ -44,7 +41,7 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
           <div className="mr-2 h-3 w-3 animate-spin border-2 border-current border-t-transparent" />
         ) : null}
         {children}
-      </motion.button>
+      </button>
     );
   }
 );
