@@ -26,4 +26,4 @@ services:
       - key: AWS_S3_REGION
         sync: false
       - key: FRONTEND_URL
-        sync: false # Set this to your Vercel URL once deployed
+        value: https://doctor-appointment-smoky-eight.vercel.app
