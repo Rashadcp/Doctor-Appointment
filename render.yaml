@@ -1,5 +1,5 @@
 services:
-  # --- BACKEND SERVICE ---
+  # --- BACKEND SERVICE ONLY ---
   - type: web
     name: doctor-appointment-api
     env: node
@@ -25,19 +25,5 @@ services:
         sync: false
       - key: AWS_S3_REGION
         sync: false
-
-  # --- FRONTEND SERVICE ---
-  - type: web
-    name: doctor-appointment-web
-    env: node
-    region: oregon
-    plan: free
-    rootDir: frontend
-    buildCommand: npm install && npm run build
-    startCommand: npm start
-    envVars:
-      - key: NEXT_PUBLIC_API_URL
-        fromService:
-          type: web
-          name: doctor-appointment-api
-          property: host
+      - key: FRONTEND_URL
+        sync: false # Set this to your Vercel URL once deployed
