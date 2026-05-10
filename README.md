@@ -5,7 +5,7 @@ A premium, full-stack medical appointment booking platform built with the MERN s
 ## 🚀 Quick Start
 
 ### Prerequisites
-- Node.js (v18+)
+- Node.js (v22+)
 - MongoDB (Local or Atlas)
 - AWS Account (for S3 image storage)
 
